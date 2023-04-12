@@ -24,7 +24,7 @@
     </head>
 
     <body>
-        <nav class="bg-dark fixed-top navbar navbar-expand-md navbar-dark">
+        <nav class="bg-dark  sticky-top navbar navbar-expand-md navbar-dark">
             <div class="container-fluid">
                 <a class="navbar-brand" href="/" style='font-family: "Press Start 2P", cursive;'>>>SOON...</a>
                 <button aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation" class="navbar-toggler" data-bs-target="#navbar" data-bs-toggle="collapse" type="button">
@@ -57,7 +57,7 @@
 
         {% if get_flashed_messages() %}
             <header>
-                <div class="alert alert-primary mb-0 text-center" role="alert">
+                <div class="alert alert-secondary mb-0 text-center" role="alert">
                     {{ get_flashed_messages() | join(" ") }}
                 </div>
             </header>

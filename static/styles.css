@@ -15,10 +15,10 @@ body {
 
 #search:hover {
     color: white;
-    border-color: red;
+    border-color: rgba(245, 61, 61, 0.991);
 }
 
 .nav-link:hover {
-    color: red !important;
+    color: rgba(245, 61, 61, 0.991) !important;
     ;
 }

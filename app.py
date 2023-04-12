@@ -44,10 +44,12 @@ def login():
 
         # Ensure username was submitted
         if not request.form.get("username"):
+            flash('enter user name')
             return render_template('error.html')
 
         # Ensure password was submitted
         elif not request.form.get("password"):
+            flash('enter password')
             return render_template('error.html')
         # Query database for username
         rows = db.execute("SELECT * FROM users WHERE username = ?",
@@ -55,6 +57,7 @@ def login():
 
         # Ensure username exists and password is correct
         if len(rows) != 1 or not check_password_hash(rows[0]["hash"], request.form.get("password")):
+            flash("password does not match")
             return render_template('error.html')
 
         # Remember which user has logged in
@@ -92,16 +95,20 @@ def register():
         email = request.form.get('email')
         # make sure user provides valid username
         if not name:
+            flash('enter a name')
             return render_template('error.html')
         for i in range(len(names)):
             if names[i]['username'] == name:
+                flash('username is taken')
                 return render_template('error.html')
 
         # make sure that the password is provided
         if not password:
+            flash('enter a password')
             return render_template('error.html')
         # make sure that the email is provided
         if not email:
+            flash('enter email')
             return render_template('error.html')
         # make sure that the password contains at least one letter, number and symbol
         alpha = False
@@ -115,14 +122,17 @@ def register():
             if p.isascii() and p.isnumeric() == False and p.isalpha() == False:
                 symbol = True
         if alpha == False or num == False or symbol == False:
+            flash('your password must contain letters, numbers and symbols')
             return render_template('error.html')
 
         # make sure that the confirmation for the password is provided
         if not check:
+            flash('enter confirmation password')
             return render_template('error.html')
 
         # make sure that password and confirmation thereof matches
         if password != check:
+            flash('two password does not match')
             return render_template('error.html')
 
         # hash the password
@@ -154,10 +164,12 @@ def change():
 
         # make sure that user typed in valid current password
         if not request.form.get("old_password") or not check_password_hash(old[0]["hash"], request.form.get("old_password")):
+            flash('wrong password')
             return render_template('error.html')
 
         # make sure that user provided both updated password and confirmation thereof
         if not new or not confirmation:
+            flash('enter password')
             return render_template('error.html')
 
         # make sure that the password contains at least one letter, number and symbol
@@ -172,10 +184,12 @@ def change():
             if p.isascii() and p.isnumeric() == False and p.isalpha() == False:
                 symbol = True
         if alpha == False or num == False or symbol == False:
+            flash('password must contain letters, numbers and symbols')
             return render_template('error.html')
 
         # make sure that updated password and confirmation thereof matches
         if new != confirmation:
+            flash('two passwords does not match')
             return render_template('error.html')
 
         # hash updated password
