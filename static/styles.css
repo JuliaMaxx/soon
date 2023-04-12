@@ -1,0 +1,19 @@
+body {
+    background-image: url('pexels-sebastiaan-stam-1097456.jpg');
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    background-size: cover;
+    font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+    font-size: large;
+    height: 1000vh;
+}
+
+#search {
+    border-color: white;
+    color: lightgray;
+}
+
+#search:hover {
+    color: white;
+    border-color: red;
+}
