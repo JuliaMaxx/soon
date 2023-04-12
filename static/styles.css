@@ -17,3 +17,8 @@ body {
     color: white;
     border-color: red;
 }
+
+.nav-link:hover {
+    color: red !important;
+    ;
+}
