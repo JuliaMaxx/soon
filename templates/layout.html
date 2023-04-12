@@ -33,11 +33,19 @@
                 <div class="collapse navbar-collapse" id="navbar">
                     {% if session["user_id"] %}
                         <ul class="navbar-nav me-auto mt-2">
-                            <li class="nav-item"><a class="nav-link" href="/quote">Movies</a></li>
-                            <li class="nav-item"><a class="nav-link" href="/buy">Albums</a></li>
-                            <li class="nav-item"><a class="nav-link" href="/sell">Upcoming</a></li>
+                            <li class="nav-item"><a class="nav-link" href="#">Movies</a></li>
+                            <li class="nav-item"><a class="nav-link" href="#">Albums</a></li>
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    More
+                                </a>
+                                <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item" href="#">Upcoming</a></li>
+                                    <li><a class="dropdown-item" href="#">Will be notified...</a></li>
+                                </ul>
+                            </li>
                         </ul>
-                        <form class="d-flex bg-dark" role="search">
+                        <form class="d-flex bg-dark" role="search">                                                                                      
                             <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
                             <button id='search'class="btn btn-outline-success bg-dark" type="submit">Search</button>
                         </form>
