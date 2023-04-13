@@ -1,0 +1,36 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Movies
+{% endblock %}
+
+{% block main %}
+    <div class='container'>
+        <div class="row row-cols-1 row-cols-md-3 g-4">
+            {%for i in info%}
+                <div class="col-13 col-lg-4 col-md-5">
+                    <div class="card h-100"style="max-width: 21rem;">
+                        <img src='{{i["image"]}}' class="card-img-top" alt="NO IMAGE">
+                        <div class="card-body">
+                        <h4 class="card-title" style="font-family:cursive">{{i['title']}}</h4>
+                        <p class="card-text"style="font-family:cursive;"><small class="text-muted">date - {{i['date']}}</small></p>
+                        <p class="card-text">
+                            <form action='/movies' method='post'>
+                                <input value= "{{i['date']}}" hidden name='notify'>
+                                <button style="width:70%"id='search'class="btn btn-outline-success bg-dark" type="submit">Notify</button>
+                            </form>
+                        </p>
+                        </div>
+                    </div>
+                </div>
+            {%endfor%}
+        </div>
+    </div>
+{% endblock %}
+
+{%block form%}
+    <form class="d-flex bg-dark" role="search" action="/movies" method="post">                                                                                      
+        <input name='movie'class="form-control me-2" type="search" placeholder="Search a movie" aria-label="Search">
+        <button id='search'class="btn btn-outline-success bg-dark" type="submit">Search</button>
+    </form>
+{%endblock%}
