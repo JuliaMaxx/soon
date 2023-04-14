@@ -1,42 +1,10 @@
-{% extends "layout.html" %}
+{% extends "display.html" %}
 
-{%block title%}
-    Movies
-{% endblock %}
-
-{%block head%}
-<link rel="stylesheet" href="//code.jquery.com/ui/1.13.0/themes/base/jquery-ui.css">
-  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-  <script src="https://code.jquery.com/ui/1.13.0/jquery-ui.min.js"></script>
-  <script src="static/movies.js"></script>
+{%block notify%}
+    <form action='/movies' method='post'>
 {%endblock%}
-
-{% block main %}
-    <div class='container'>
-        <div class="row row-cols-1 row-cols-md-3 g-4">
-            {%for i in info%}
-                <div class="col-13 col-lg-4 col-md-5" id="{{i['title']}}">
-                    <div class="card h-100"style="max-width: 21rem;">
-                        <img src='{{i["image"]}}' class="card-img-top" alt="NO IMAGE">
-                        <div class="card-body">
-                                <h4 class="card-title" style="font-family:cursive">{{i['title']}}</h4>
-                                <p class="card-text"style="font-family:cursive;"><small class="text-muted">date - {{i['date']}}</small></p>
-                                <p class="card-text">
-                                    <form action='/movies' method='post'>
-                                        <input value= "{{i['date']}}" hidden name='notify'>
-                                        <input value= "{{i['title']}}" hidden name='title'>
-                                        <input value= "{{i['image']}}" hidden name='image'>             
-                                        <button style="width:70%"id='search'class="btn btn-outline-success bg-dark" type="submit">Notify</button>
-                                    </form>
-                                </p>
-                        </div>
-                    </div>
-                </div>
-            {%endfor%}
-        </div>
-    </div>
-{% endblock %}
-
+                                
+{%block button%}Notify{%endblock%}
 
 {%block form%}
     <script src="movies.js"></script>

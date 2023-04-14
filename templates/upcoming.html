@@ -1,33 +1,10 @@
-{% extends "layout.html" %}
-
-{%block title%}
-    Upcoming
-{% endblock %}
+{% extends "display.html" %}
 
 
+{%block button%}Notify{%endblock%}
 
-{% block main %}
-    <div class='container'>
-        <div class="row row-cols-1 row-cols-md-3 g-4">
-            {%for i in info%}
-                <div class="col-13 col-lg-4 col-md-5" id="{{i['title']}}">
-                    <div class="card h-100"style="max-width: 21rem;">
-                        <img src='{{i["image"]}}' class="card-img-top" alt="NO IMAGE">
-                        <div class="card-body">
-                                <h4 class="card-title" style="font-family:cursive">{{i['title']}}</h4>
-                                <p class="card-text"style="font-family:cursive;"><small class="text-muted">date - {{i['date']}}</small></p>
-                                <p class="card-text">
-                                    <form action='/upcoming' method='post'>
-                                        <input value= "{{i['date']}}" hidden name='notify'>
-                                        <input value= "{{i['title']}}" hidden name='title'>             
-                                        <input value= "{{i['image']}}" hidden name='image'>             
-                                        <button style="width:70%"id='search'class="btn btn-outline-success bg-dark" type="submit">Notify</button>
-                                    </form>
-                                </p>
-                        </div>
-                    </div>
-                </div>
-            {%endfor%}
-        </div>
-    </div>
+{% block notify %}
+    
+    <form action='/upcoming' method='post'>
+                                        
 {% endblock %}

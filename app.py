@@ -272,3 +272,18 @@ def upcoming_media():
                             "INSERT INTO movies (user_id, title, image, date, notified) VALUES (?, ?, ?, ?, ?)", session['user_id'], title, image, date, False)
 
         return render_template('upcoming.html', info=info)
+
+
+@app.route("/notified", methods=["GET", "POST"])
+@login_required
+def notified():
+    if request.method == "GET":
+        info = db.execute(
+            "SELECT title, image, date FROM movies WHERE user_id=?", session['user_id'])
+        return render_template('notified.html', info=info)
+    else:
+        if (request.form.get('cancel')):
+            title = request.form.get('title')
+            db.execute("DELETE FROM movies WHERE title=? AND user_id=?;",
+                       title, session['user_id'])
+            return redirect("/notified")

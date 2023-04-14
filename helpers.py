@@ -18,6 +18,8 @@ import smtplib
 import datetime
 from email.message import EmailMessage
 
+db = SQL("sqlite:///movies.db")
+
 
 def send_email(recipient, subject, message, send_date, send_time):
     # Create the message
@@ -37,7 +39,6 @@ def send_email(recipient, subject, message, send_date, send_time):
             smtp.starttls()
             smtp.login('jjuliamaxxx@gmail.com', 'lguvzwzsishpgtbf')
             smtp.send_message(msg)
-            db = SQL("sqlite:///movies.db")
             db.execute("UPDATE movies SET notified = 'TRUE' WHERE id = ? AND date=?",
                        session['users_id'], send_date)
             print("Email sent!")
