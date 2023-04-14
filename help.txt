@@ -3,3 +3,12 @@ id INTEGER PRIMARY KEY AUTOINCREMENT,
 username TEXT NOT NULL,
 email TEXT NOT NULL,
 hash TEXT NOT NULL);
+
+CREATE TABLE movies(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL,
+    title TEXT,
+    image BLOB,
+    date NUMERIC,
+    notified BOOLEAN
+);

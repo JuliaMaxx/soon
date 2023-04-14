@@ -9,6 +9,22 @@ body {
     height: 100vh;
 }
 
+.ui-menu-item-wrapper:hover,
+.ui-menu-item-wrapper:checked,
+.ui-menu-item:hover {
+    background-color: gray !important;
+    color: white;
+}
+
+.ui-autocomplete li,
+.ui-menu-item {
+    border: 3px solid black !important;
+}
+
+
+.navbar-nav {
+    z-index: 1000 !important;
+}
 
 #search {
     border-color: white;

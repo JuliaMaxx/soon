@@ -3,7 +3,7 @@ from cs50 import SQL
 from flask import Flask, flash, redirect, render_template, request, session
 from flask_session import Session
 from werkzeug.security import check_password_hash, generate_password_hash
-from helpers import login_required, search_movie, send_email
+from helpers import login_required, search_movie, send_email, upcoming
 import datetime
 
 
@@ -200,19 +200,75 @@ def change():
                    hash, session["user_id"])
         flash('Password was successfully changed!')
         return redirect("/")
-    
+
+
 @app.route("/movies", methods=["GET", "POST"])
 @login_required
 def movies():
-      if request.method == "GET":
+    if request.method == "GET":
         return render_template("movies.html")
-      else:
-            movie = request.form.get("movie")
-            info = search_movie(movie)
-            if (request.form.get('notify')):
-                date = datetime.datetime.strptime(request.form.get('notify'), '%Y-%m-%d')
-                now = datetime.datetime.today()
-                if date <= now:
-                    flash('the movie is already out, go watch it!')
-            return render_template('movies.html', info=info)
-            
+    else:
+        movie = request.form.get("movie")
+        info = search_movie(movie)
+        if (request.form.get('notify')):
+            date = datetime.datetime.strptime(
+                request.form.get('notify'), '%Y-%m-%d')
+            now = datetime.datetime.today()
+            if date <= now:
+                flash('the movie is already out, go watch it!')
+            else:
+                email = db.execute(
+                    'SELECT email FROM users WHERE id=?', session['user_id'])
+                email = email[0]['email']
+                title = request.form.get('title')
+                subject = f"{title} is out!!!"
+                image = request.form.get('image')
+                message = f"{title} has come out today! Go watch {title}"
+                d = request.form.get('notify')
+                send_email(email, subject, message, d, '13:00')
+                flash('You will be notified when the movie is out!')
+                db.execute(
+                    "INSERT INTO movies (user_id, title, image, date, notified) VALUES (?, ?, ?, ?, ?)", session['user_id'], title, image, date, False)
+        return render_template('movies.html', info=info)
+
+
+@app.route("/upcoming", methods=["GET", "POST"])
+@login_required
+def upcoming_media():
+    info = upcoming()
+    if request.method == "GET":
+        return render_template("upcoming.html", info=info)
+    else:
+        if (request.form.get('notify')):
+            date = datetime.datetime.strptime(
+                request.form.get('notify'), '%Y-%m-%d')
+            now = datetime.datetime.today()
+            if date <= now:
+                flash('the movie is already out, go watch it!')
+            else:
+                email = db.execute(
+                    'SELECT email FROM users WHERE id=?', session['user_id'])
+                email = email[0]['email']
+                title = request.form.get('title')
+                image = request.form.get('image')
+                subject = f"{title} is out!!!"
+                message = f"{title} has come out today! Go watch {title}"
+                d = request.form.get('notify')
+                send_email(email, subject, message, d, '13:00')
+                flash('You will be notified when the movie is out!')
+                names = db.execute(
+                    "SELECT title FROM movies WHERE user_id=?", session['user_id'])
+                if not names:
+                    db.execute(
+                        "INSERT INTO movies (user_id, title, image, date, notified) VALUES (?, ?, ?, ?, ?)", session['user_id'], title, image, date, False)
+                else:
+                    chosen = False
+                    for name in names:
+                        if title == name['title']:
+                            chosen = True
+                            break
+                    if chosen != True:
+                        db.execute(
+                            "INSERT INTO movies (user_id, title, image, date, notified) VALUES (?, ?, ?, ?, ?)", session['user_id'], title, image, date, False)
+
+        return render_template('upcoming.html', info=info)

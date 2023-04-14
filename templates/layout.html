@@ -16,7 +16,7 @@
 
         <link href="/static/styles.css" rel="stylesheet">
         <title>Soon: {% block title %}{% endblock %}</title>
-
+        {%block head%}{%endblock%}
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
@@ -32,7 +32,7 @@
                 </button>
                 <div class="collapse navbar-collapse" id="navbar">
                     {% if session["user_id"] %}
-                        <ul class="navbar-nav me-auto mt-2">
+                        <ul id = 'my-navbar'class="navbar-nav me-auto mt-2">
                             <li class="nav-item"><a class="nav-link" href="/movies">Movies</a></li>
                             <li class="nav-item"><a class="nav-link" href="#">Albums</a></li>
                             <li class="nav-item dropdown">
@@ -40,7 +40,7 @@
                                     More
                                 </a>
                                 <ul class="dropdown-menu">
-                                    <li><a class="dropdown-item" href="#">Upcoming</a></li>
+                                    <li><a class="dropdown-item" href="/upcoming">Upcoming</a></li>
                                     <li><a class="dropdown-item" href="#">Will be notified...</a></li>
                                 </ul>
                             </li>

@@ -1,15 +1,10 @@
 {% extends "layout.html" %}
 
 {%block title%}
-    Movies
+    Upcoming
 {% endblock %}
 
-{%block head%}
-<link rel="stylesheet" href="//code.jquery.com/ui/1.13.0/themes/base/jquery-ui.css">
-  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-  <script src="https://code.jquery.com/ui/1.13.0/jquery-ui.min.js"></script>
-  <script src="static/movies.js"></script>
-{%endblock%}
+
 
 {% block main %}
     <div class='container'>
@@ -22,9 +17,9 @@
                                 <h4 class="card-title" style="font-family:cursive">{{i['title']}}</h4>
                                 <p class="card-text"style="font-family:cursive;"><small class="text-muted">date - {{i['date']}}</small></p>
                                 <p class="card-text">
-                                    <form action='/movies' method='post'>
+                                    <form action='/upcoming' method='post'>
                                         <input value= "{{i['date']}}" hidden name='notify'>
-                                        <input value= "{{i['title']}}" hidden name='title'>
+                                        <input value= "{{i['title']}}" hidden name='title'>             
                                         <input value= "{{i['image']}}" hidden name='image'>             
                                         <button style="width:70%"id='search'class="btn btn-outline-success bg-dark" type="submit">Notify</button>
                                     </form>
@@ -36,12 +31,3 @@
         </div>
     </div>
 {% endblock %}
-
-
-{%block form%}
-    <script src="movies.js"></script>
-    <form class="d-flex bg-dark"  action="/movies" method="post">                                                                                      
-        <input name='movie' id = "title-input" class="form-control me-2" type="text" placeholder="Search a movie" aria-label="Search">
-        <button id='search'class="btn btn-outline-success bg-dark" type="submit">Search</button>
-    </form>
-{%endblock%}
