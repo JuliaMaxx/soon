@@ -20,6 +20,8 @@ from email.message import EmailMessage
 
 db = SQL("sqlite:///movies.db")
 
+scheduled_jobs = {}
+
 
 def send_email(recipient, subject, message, send_date, send_time):
     # Create the message
@@ -44,14 +46,26 @@ def send_email(recipient, subject, message, send_date, send_time):
             print("Email sent!")
     # Schedule the email to be sent
     job = schedule.every().day.at(send_time).do(send_email_helper, msg, recipient)
+    scheduled_jobs[(recipient, subject, message, send_datetime)] = job
     job.next_run = send_datetime  # Set the next run time to the send date and time
-
     # Run the schedule
+
     def run_schedule():
         while True:
             schedule.run_pending()
             time.sleep(1)
     threading.Thread(target=run_schedule, daemon=True).start()
+
+
+def cancel_email(recipient, subject, message, send_date, send_time):
+    send_datetime = datetime.datetime.strptime(
+        send_date + ' ' + send_time, '%Y-%m-%d %H:%M')
+    job = scheduled_jobs.get((recipient, subject, message, send_datetime))
+
+    if job:
+        # Cancel the job and remove it from the dictionary
+        schedule.cancel_job(job)
+        scheduled_jobs.pop((recipient, subject, message, send_datetime))
 
 
 def search_movie(title):

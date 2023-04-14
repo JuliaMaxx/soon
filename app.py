@@ -3,7 +3,7 @@ from cs50 import SQL
 from flask import Flask, flash, redirect, render_template, request, session
 from flask_session import Session
 from werkzeug.security import check_password_hash, generate_password_hash
-from helpers import login_required, search_movie, send_email, upcoming
+from helpers import login_required, search_movie, send_email, upcoming, cancel_email
 import datetime
 
 
@@ -254,7 +254,7 @@ def upcoming_media():
                 subject = f"{title} is out!!!"
                 message = f"{title} has come out today! Go watch {title}"
                 d = request.form.get('notify')
-                send_email(email, subject, message, d, '13:00')
+                send_email(email, subject, message, d, '14:00')
                 flash('You will be notified when the movie is out!')
                 names = db.execute(
                     "SELECT title FROM movies WHERE user_id=?", session['user_id'])
@@ -286,4 +286,15 @@ def notified():
             title = request.form.get('title')
             db.execute("DELETE FROM movies WHERE title=? AND user_id=?;",
                        title, session['user_id'])
-            return redirect("/notified")
+            email = db.execute(
+                'SELECT email FROM users WHERE id=?', session['user_id'])
+            email = email[0]['email']
+            title = request.form.get('title')
+            subject = f"{title} is out!!!"
+            d = request.form.get('notify')
+            dt = datetime.datetime.strptime(d, '%Y-%m-%d %H:%M:%S')
+            dt = dt.date()
+            message = f"{title} has come out today! Go watch {title}"
+            cancel_email(email, subject, message, str(dt), '14:00')
+            flash('notification was canceled')
+        return redirect("/notified")
