@@ -3,7 +3,7 @@ from cs50 import SQL
 from flask import Flask, flash, redirect, render_template, request, session
 from flask_session import Session
 from werkzeug.security import check_password_hash, generate_password_hash
-from helpers import login_required, search_movie, send_email, upcoming, cancel_email
+from helpers import login_required, search_movie, send_email, upcoming, cancel_email, search_album
 import datetime
 
 
@@ -227,8 +227,20 @@ def movies():
                 d = request.form.get('notify')
                 send_email(email, subject, message, d, '13:00')
                 flash('You will be notified when the movie is out!')
-                db.execute(
-                    "INSERT INTO movies (user_id, title, image, date, notified) VALUES (?, ?, ?, ?, ?)", session['user_id'], title, image, date, False)
+                names = db.execute(
+                    "SELECT title FROM movies WHERE user_id=?", session['user_id'])
+                if not names:
+                    db.execute(
+                        "INSERT INTO movies (user_id, title, image, date, notified) VALUES (?, ?, ?, ?, ?)", session['user_id'], title, image, date, False)
+                else:
+                    chosen = False
+                    for name in names:
+                        if title == name['title']:
+                            chosen = True
+                            break
+                    if chosen != True:
+                        db.execute(
+                            "INSERT INTO movies (user_id, title, image, date, notified) VALUES (?, ?, ?, ?, ?)", session['user_id'], title, image, date, False)
         return render_template('movies.html', info=info)
 
 
@@ -252,7 +264,7 @@ def upcoming_media():
                 title = request.form.get('title')
                 image = request.form.get('image')
                 subject = f"{title} is out!!!"
-                message = f"{title} has come out today! Go watch {title}"
+                message = f"{title} has come out today! Enjoy {title}"
                 d = request.form.get('notify')
                 send_email(email, subject, message, d, '14:00')
                 flash('You will be notified when the movie is out!')
@@ -284,8 +296,10 @@ def notified():
     else:
         if (request.form.get('cancel')):
             title = request.form.get('title')
+
             db.execute("DELETE FROM movies WHERE title=? AND user_id=?;",
                        title, session['user_id'])
+
             email = db.execute(
                 'SELECT email FROM users WHERE id=?', session['user_id'])
             email = email[0]['email']
@@ -294,7 +308,49 @@ def notified():
             d = request.form.get('notify')
             dt = datetime.datetime.strptime(d, '%Y-%m-%d %H:%M:%S')
             dt = dt.date()
-            message = f"{title} has come out today! Go watch {title}"
+            message = f"{title} has come out today! Enjoy {title}"
             cancel_email(email, subject, message, str(dt), '14:00')
             flash('notification was canceled')
         return redirect("/notified")
+
+
+@app.route("/music", methods=["GET", "POST"])
+@login_required
+def music():
+    if request.method == "GET":
+        return render_template("music.html")
+    else:
+        album = request.form.get("album")
+        info = search_album(album)
+        if (request.form.get('notify')):
+            date = datetime.datetime.strptime(
+                request.form.get('notify'), '%Y-%m-%d')
+            now = datetime.datetime.today()
+            if date <= now:
+                flash('the album is already out, go listen to it!')
+            else:
+                email = db.execute(
+                    'SELECT email FROM users WHERE id=?', session['user_id'])
+                email = email[0]['email']
+                title = request.form.get('title')
+                subject = f"{title} is out!!!"
+                image = request.form.get('image')
+                message = f"{title} has come out today! Enjoy {title}"
+                d = request.form.get('notify')
+                send_email(email, subject, message, d, '13:00')
+                flash('You will be notified when the album is out!')
+                names = db.execute(
+                    "SELECT title FROM movies WHERE user_id=?", session['user_id'])
+                if not names:
+                    db.execute(
+                        "INSERT INTO movies (user_id, title, image, date, notified) VALUES (?, ?, ?, ?, ?)", session['user_id'], title, image, date, False)
+                else:
+                    chosen = False
+                    for name in names:
+                        if title == name['title']:
+                            chosen = True
+                            break
+                    if chosen != True:
+                        db.execute(
+                            "INSERT INTO movies (user_id, title, image, date, notified) VALUES (?, ?, ?, ?, ?)", session['user_id'], title, image, date, False)
+        return render_template('music.html', info=info)

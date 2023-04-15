@@ -3,7 +3,14 @@
 {%block notify%}
     <form action='/movies' method='post'>
 {%endblock%}
-                                
+
+ {%block script%}
+  <link rel="stylesheet" href="//code.jquery.com/ui/1.13.0/themes/base/jquery-ui.css">
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://code.jquery.com/ui/1.13.0/jquery-ui.min.js"></script>
+  <script src="static/movies.js"></script>
+ {%endblock%}
+
 {%block button%}Notify{%endblock%}
 
 {%block form%}

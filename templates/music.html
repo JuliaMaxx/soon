@@ -1,0 +1,22 @@
+{% extends "display.html" %}
+
+{%block notify%}
+    <form action='/music' method='post'>
+{%endblock%}
+
+{%block script%}
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+<script src="static/music.js"></script>
+
+{%endblock%}
+
+{%block button%}Notify{%endblock%}
+
+{%block form%}
+    <form class="d-flex bg-dark"  action="/music" method="post">                                                                                      
+        <input name='album' id = "title-input2" class="form-control me-2" type="text" placeholder="Search an album" aria-label="Search">
+        <button id='search'class="btn btn-outline-success bg-dark" type="submit">Search</button>
+    </form>
+{%endblock%}
