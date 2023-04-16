@@ -9,6 +9,36 @@ body {
     height: 100vh;
 }
 
+* {
+    box-sizing: border-box;
+}
+
+.wrapper {
+    position: relative;
+    display: inline-block;
+    margin-top: 3px;
+}
+
+.options {
+    list-style: none;
+    padding: unset;
+    margin: unset;
+    position: absolute;
+    width: 100%;
+}
+
+.options button {
+    width: 100%;
+    border: solid black 2px;
+    text-align: left;
+    padding: 2px;
+}
+
+.options button:hover {
+    background-color: gray;
+    color: white;
+}
+
 .ui-menu-item-wrapper:hover,
 .ui-menu-item-wrapper:checked,
 .ui-menu-item:hover {
@@ -28,6 +58,7 @@ body {
 }
 
 #search {
+    margin-left: 0.3em !important;
     border-color: white;
     color: lightgray;
 }

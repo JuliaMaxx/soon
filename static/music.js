@@ -1,26 +1,18 @@
-function createAutocompleteSearchBar() {
-    // Initialize jQuery UI Autocomplete widget
-    $('#title-input2').autocomplete({
-        source: function (request, response) {
-            // Make a request to the Deezer API search endpoint
-            $.ajax({
-                url: 'https://api.deezer.com/search',
-                dataType: 'jsonp',
-                data: {
-                    q: request.term,
-                    limit: 10, // set the number of results to display
-                    type: 'album' // set the type of search to albums
-                },
-                success: function (data) {
-                    // Extract the album titles from the response data
-                    var albumTitles = $.map(data.data, function (album) {
-                        return { label: album.title, value: album.title };
-                    });
-                    // Pass the album titles to the autocomplete widget
-                    response(albumTitles);
-                }
-            });
-        },
-        minLength: 2 // set the minimum number of characters required to trigger a search
-    });
-}
+let input = document.querySelector('#title-input2');
+input.addEventListener('input', function (event) {
+    let html = '';
+    if (input.value) {
+        const val = input.value.toLowerCase();
+        let count = 0;
+        for (album of albums) {
+            if (count === 10) {
+                break
+            }
+            if (album.substr(0, val.length).toLowerCase() === val) {
+                count = count + 1;
+                html += `<li><button type="button">${album}</button></li>`;
+            }
+        }
+        document.querySelector('.options').innerHTML = html;
+    }
+});
