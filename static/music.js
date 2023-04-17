@@ -10,7 +10,7 @@ input.addEventListener('input', function (event) {
             }
             if (album.substr(0, val.length).toLowerCase() === val) {
                 count = count + 1;
-                html += `<li><button type="button">${album}</button></li>`;
+                html += `<li><a href="/music?album=${album}" role="button">${album}</a></li>`;
             }
         }
         document.querySelector('.options').innerHTML = html;

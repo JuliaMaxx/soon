@@ -317,10 +317,8 @@ def notified():
 @app.route("/music", methods=["GET", "POST"])
 @login_required
 def music():
-    if request.method == "GET":
-        return render_template("music.html")
-    else:
-        album = request.form.get("album")
+    if request.method == 'POST':
+        album = request.args.get("album")
         info = search_album(album)
         if (request.form.get('notify')):
             date = datetime.datetime.strptime(
@@ -328,6 +326,7 @@ def music():
             now = datetime.datetime.today()
             if date <= now:
                 flash('the album is already out, go listen to it!')
+                return redirect(f'/music?album={album}')
             else:
                 email = db.execute(
                     'SELECT email FROM users WHERE id=?', session['user_id'])
@@ -354,3 +353,8 @@ def music():
                         db.execute(
                             "INSERT INTO movies (user_id, title, image, date, notified) VALUES (?, ?, ?, ?, ?)", session['user_id'], title, image, date, False)
         return render_template('music.html', info=info)
+    elif request.method == 'GET' and request.args.get('album'):
+        album = request.args.get("album")
+        info = search_album(album)
+        return render_template('music.html', info=info)
+    return render_template("music.html")
