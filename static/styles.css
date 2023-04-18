@@ -9,6 +9,10 @@ body {
     height: 100vh;
 }
 
+input {
+    padding: 0.4em !important;
+}
+
 * {
     box-sizing: border-box;
 }
@@ -27,29 +31,32 @@ body {
     width: 100%;
 }
 
-.options button {
+.options a {
+    display: block;
     width: 100%;
-    border: solid black 2px;
+}
+
+.options li {
+    background-color: rgb(234, 230, 230);
+    opacity: 90%;
+}
+
+
+.options a:link,
+.options a:visited {
+    text-decoration: unset;
+    color: unset;
+    width: 100%;
+    color: black;
+    background-color: rgb(234, 230, 230);
     text-align: left;
     padding: 2px;
 }
 
-.options button:hover {
-    background-color: gray;
-    color: white;
-}
-
-.ui-menu-item-wrapper:hover,
-.ui-menu-item-wrapper:checked,
-.ui-menu-item:hover {
-    background-color: gray !important;
-    color: white;
-}
-
-.ui-autocomplete li,
-.ui-menu-item {
-    font-family: cursive;
-    border: 3px solid black !important;
+.options a:hover {
+    opacity: 1;
+    background-color: white;
+    color: red;
 }
 
 
@@ -57,15 +64,15 @@ body {
     z-index: 1000 !important;
 }
 
-#search {
-    margin-left: 0.3em !important;
-    border-color: white;
+.search {
+    margin-left: 0.4em !important;
+    border-color: white !important;
     color: lightgray;
 }
 
-#search:hover {
-    color: white;
-    border-color: rgba(245, 61, 61, 0.991);
+.search:hover {
+    color: white !important;
+    border-color: rgba(245, 61, 61, 0.991) !important;
 }
 
 .nav-link:hover {

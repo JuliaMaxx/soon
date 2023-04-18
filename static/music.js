@@ -5,7 +5,7 @@ input.addEventListener('input', function (event) {
         const val = input.value.toLowerCase();
         let count = 0;
         for (album of albums) {
-            if (count === 10) {
+            if (count === 15) {
                 break
             }
             if (album.substr(0, val.length).toLowerCase() === val) {

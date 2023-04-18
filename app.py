@@ -205,10 +205,8 @@ def change():
 @app.route("/movies", methods=["GET", "POST"])
 @login_required
 def movies():
-    if request.method == "GET":
-        return render_template("movies.html")
-    else:
-        movie = request.form.get("movie")
+    if request.method == 'POST':
+        movie = request.args.get("movie")
         info = search_movie(movie)
         if (request.form.get('notify')):
             date = datetime.datetime.strptime(
@@ -216,6 +214,7 @@ def movies():
             now = datetime.datetime.today()
             if date <= now:
                 flash('the movie is already out, go watch it!')
+                return redirect(f'/movies?movie={movie}')
             else:
                 email = db.execute(
                     'SELECT email FROM users WHERE id=?', session['user_id'])
@@ -223,7 +222,7 @@ def movies():
                 title = request.form.get('title')
                 subject = f"{title} is out!!!"
                 image = request.form.get('image')
-                message = f"{title} has come out today! Go watch {title}"
+                message = f"{title} has come out today! Enjoy {title}"
                 d = request.form.get('notify')
                 send_email(email, subject, message, d, '13:00')
                 flash('You will be notified when the movie is out!')
@@ -242,6 +241,11 @@ def movies():
                         db.execute(
                             "INSERT INTO movies (user_id, title, image, date, notified) VALUES (?, ?, ?, ?, ?)", session['user_id'], title, image, date, False)
         return render_template('movies.html', info=info)
+    elif request.method == 'GET' and request.args.get('movie'):
+        movie = request.args.get("movie")
+        info = search_movie(movie)
+        return render_template('movies.html', info=info)
+    return render_template("movies.html")
 
 
 @app.route("/upcoming", methods=["GET", "POST"])

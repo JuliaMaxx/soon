@@ -4,10 +4,6 @@
     Content
 {% endblock %}
 
-{%block head%}
-    {%block script%}
-    {%endblock%}
-{%endblock%}
 
 {% block main %}
     <div class='container'>
@@ -25,7 +21,7 @@
                                     <input value= "{{i['title']}}" hidden name='title'>
                                     <input value= "{{i['image']}}" hidden name='image'>
                                     <input value="true" hidden name='cancel'>             
-                                    <button style="width:70%"id='search'class="btn btn-outline-success bg-dark" type="submit">{%block button%}{%endblock%}</button>
+                                    <button style="width:70%" class="search btn btn-outline-success bg-dark" type="submit">{%block button%}{%endblock%}</button>
                                 </form>
                                     
                                 </p>

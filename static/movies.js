@@ -1,26 +1,18 @@
-$(function () {
-    // Fetch all titles
-    const apiKey = "8e5c4304a2b0fc02884f12935ccffac9";
-    const url = `https://api.themoviedb.org/3/search/multi?api_key=${apiKey}&language=en-US&query=`;
-
-    function fetchTitles(request, response) {
-        const searchTerm = encodeURIComponent(request.term);
-        $.ajax({
-            url: url + searchTerm,
-            success: function (data) {
-                const titles = [];
-                data.results.forEach(function (result) {
-                    titles.push(result.title || result.name);
-                });
-                response(titles);
+let input = document.querySelector('#title-input');
+input.addEventListener('input', function (event) {
+    let html = '';
+    if (input.value) {
+        const val = input.value.toLowerCase();
+        let count = 0;
+        for (movie of titles) {
+            if (count === 15) {
+                break
             }
-        });
+            if (movie.substr(0, val.length).toLowerCase() === val) {
+                count = count + 1;
+                html += `<li><a href="/movies?movie=${movie}" role="button">${movie}</a></li>`;
+            }
+        }
+        document.querySelector('.options').innerHTML = html;
     }
-
-    // Initialize autocomplete
-    $("#title-input").autocomplete({
-        source: fetchTitles,
-        minLength: 1,
-        appendTo: "#my-navbar"
-    });
 });
