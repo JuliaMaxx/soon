@@ -1,3 +1,4 @@
+/* general */
 body {
     background-image: url('pexels-sebastiaan-stam-1097456.jpg');
     background-repeat: no-repeat;
@@ -17,6 +18,7 @@ input {
     box-sizing: border-box;
 }
 
+/* autocomplete */
 .wrapper {
     position: relative;
     display: inline-block;
@@ -59,11 +61,7 @@ input {
     color: red;
 }
 
-
-.navbar-nav {
-    z-index: 1000 !important;
-}
-
+/* search bar */
 .search {
     margin-left: 0.4em !important;
     border-color: white !important;
@@ -73,6 +71,11 @@ input {
 .search:hover {
     color: white !important;
     border-color: rgba(245, 61, 61, 0.991) !important;
+}
+
+/* navbar */
+.navbar-nav {
+    z-index: 1000 !important;
 }
 
 .nav-link:hover {

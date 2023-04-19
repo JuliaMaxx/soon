@@ -1,22 +1,22 @@
 {% extends "display.html" %}
 
 {%block notify%}
-<form action='/music' method='post'>
+    <form action='/music' method='post'>
 {%endblock%}
 
 {%block button%}Notify{%endblock%}
 
 {%block form%}
-<form class="d-flex bg-dark" action="/music" autocomplete="off">
-    <div class='wrapper'>
-        <input name='album' id="title-input2" class="form-control me-2"
-            type="text" placeholder="Search an album">
-        <ul class='options'>
-        </ul>
-    </div>
-    <button class="search btn btn-outline-success bg-dark"
-        type="submit">Search</button>
-</form>
-<script src= 'static/album_list.js'></script>
-<script src="static/music.js"> </script>
+    <form class="d-flex bg-dark" action="/music" autocomplete="off">
+        <div class='wrapper'>
+            <input name='album' id="title-input2" class="form-control me-2"
+                type="text" placeholder="Search an album">
+            <ul class='options'>
+            </ul>
+        </div>
+        <button class="search btn btn-outline-success bg-dark"
+            type="submit">Search</button>
+    </form>
+    <script src= 'static/album_list.js'></script>
+    <script src="static/music.js"> </script>
 {%endblock%}

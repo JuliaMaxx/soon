@@ -13,18 +13,18 @@
                     <div class="card h-100"style="max-width: 21rem;">
                         <img src='{{i["image"]}}' class="card-img-top" alt="NO IMAGE">
                         <div class="card-body">
-                                <h4 class="card-title" style="font-family:cursive">{{i['title']}}</h4>
-                                <p class="card-text"style="font-family:cursive;"><small class="text-muted">date - {{i['date']}}</small></p>
-                                <p class="card-text">
-                                {%block notify%}{%endblock%}
-                                    <input value= "{{i['date']}}" hidden name='notify'>
-                                    <input value= "{{i['title']}}" hidden name='title'>
-                                    <input value= "{{i['image']}}" hidden name='image'>
-                                    <input value="true" hidden name='cancel'>             
-                                    <button style="width:70%" class="search btn btn-outline-success bg-dark" type="submit">{%block button%}{%endblock%}</button>
-                                </form>
-                                    
-                                </p>
+                            <h4 class="card-title" style="font-family:cursive">{{i['title']}}</h4>
+                            <p class="card-text"style="font-family:cursive;"><small class="text-muted">date - {{i['date']}}</small></p>
+                            <p class="card-text">
+                            {%block notify%}{%endblock%}
+                                <input value= "{{i['date']}}" hidden name='notify'>
+                                <input value= "{{i['title']}}" hidden name='title'>
+                                <input value= "{{i['image']}}" hidden name='image'>
+                                <input value="true" hidden name='cancel'>             
+                                <button style="width:70%" class="search btn btn-outline-success bg-dark" type="submit">{%block button%}{%endblock%}</button>
+                            </form>
+                                
+                            </p>
                         </div>
                     </div>
                 </div>

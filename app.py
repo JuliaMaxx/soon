@@ -224,7 +224,7 @@ def movies():
                 image = request.form.get('image')
                 message = f"{title} has come out today! Enjoy {title}"
                 d = request.form.get('notify')
-                send_email(email, subject, message, d, '13:00')
+                send_email(email, subject, message, d, '00:00')
                 flash('You will be notified when the movie is out!')
                 names = db.execute(
                     "SELECT title FROM movies WHERE user_id=?", session['user_id'])
@@ -270,7 +270,7 @@ def upcoming_media():
                 subject = f"{title} is out!!!"
                 message = f"{title} has come out today! Enjoy {title}"
                 d = request.form.get('notify')
-                send_email(email, subject, message, d, '14:00')
+                send_email(email, subject, message, d, '00:00')
                 flash('You will be notified when the movie is out!')
                 names = db.execute(
                     "SELECT title FROM movies WHERE user_id=?", session['user_id'])
@@ -313,7 +313,7 @@ def notified():
             dt = datetime.datetime.strptime(d, '%Y-%m-%d %H:%M:%S')
             dt = dt.date()
             message = f"{title} has come out today! Enjoy {title}"
-            cancel_email(email, subject, message, str(dt), '14:00')
+            cancel_email(email, subject, message, str(dt), '00:00')
             flash('notification was canceled')
         return redirect("/notified")
 
@@ -340,7 +340,7 @@ def music():
                 image = request.form.get('image')
                 message = f"{title} has come out today! Enjoy {title}"
                 d = request.form.get('notify')
-                send_email(email, subject, message, d, '13:00')
+                send_email(email, subject, message, d, '00:00')
                 flash('You will be notified when the album is out!')
                 names = db.execute(
                     "SELECT title FROM movies WHERE user_id=?", session['user_id'])

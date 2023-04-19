@@ -1,7 +1,7 @@
 import os
 from cs50 import SQL
 import requests
-from flask import redirect, render_template, request, session
+from flask import redirect, session
 from functools import wraps
 import json
 import threading
@@ -10,14 +10,6 @@ import schedule
 import time
 from email.message import EmailMessage
 import smtplib
-
-
-import schedule
-import time
-import smtplib
-import datetime
-from email.message import EmailMessage
-
 db = SQL("sqlite:///movies.db")
 
 scheduled_jobs = {}
@@ -125,7 +117,8 @@ def search_album(title):
             # Get the album information from the album response
             response1 = response1.json()
             album_info = {}
-            album_info["title"] = response1["title"] + " " + '-'+' ' + response1["artist"]["name"]
+            album_info["title"] = response1["title"] + \
+                " " + '-'+' ' + response1["artist"]["name"]
             album_info["date"] = response1["release_date"]
             if response1['cover_xl'] == '' or response1['cover_xl'] == None:
                 img = get_image(response1['title'])
@@ -140,12 +133,12 @@ def search_album(title):
 
 
 def get_image(title):
-    url="http://ws.audioscrobbler.com/2.0/?method=album.search&api_key=5d6840079ddfebe3815942e2f55a8599&format=json"
+    url = "http://ws.audioscrobbler.com/2.0/?method=album.search&api_key=5d6840079ddfebe3815942e2f55a8599&format=json"
     params = {"album": f"{title}"}
     response = requests.get(url, params=params)
-    image = response.json()['results']['albummatches']['album'][0]['image'][-1]['#text']
+    image = response.json()[
+        'results']['albummatches']['album'][0]['image'][-1]['#text']
     return image
-
 
 
 def upcoming():
