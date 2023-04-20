@@ -3,7 +3,7 @@ from cs50 import SQL
 from flask import Flask, flash, redirect, render_template, request, session
 from flask_session import Session
 from werkzeug.security import check_password_hash, generate_password_hash
-from helpers import login_required, search_movie, send_email, upcoming, cancel_email, search_album
+from helpers import login_required, search_movie, send_email, upcoming, cancel_email, search_album, check_email
 import datetime
 from email.mime.image import MIMEImage
 
@@ -112,6 +112,9 @@ def register():
         # make sure that the email is provided
         if not email:
             flash('enter email')
+            return render_template('register.html')
+        if not check_email(email):
+            flash('not valid email')
             return render_template('register.html')
         # make sure that the password contains at least one letter, number and symbol
         alpha = False

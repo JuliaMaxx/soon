@@ -1,3 +1,4 @@
+import re
 from flask import Flask
 import os
 from cs50 import SQL
@@ -273,6 +274,12 @@ def upcoming():
         page += 1
 
     return upcoming
+
+
+def check_email(email):
+    # check if the email is valid
+    pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+    return re.match(pattern, email) is not None
 
 
 def login_required(f):
