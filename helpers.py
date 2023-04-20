@@ -11,66 +11,79 @@ import schedule
 import time
 from email.message import EmailMessage
 import smtplib
+from email.mime.multipart import MIMEMultipart
+from email.mime.image import MIMEImage
+import imghdr
 db = SQL("sqlite:///movies.db")
 
-scheduled_jobs = {}
+# define a dictionary with scheduled jobs
+jobs = {}
 
-helpers = Flask(__name__)
 
-
-def send_email(recipient, subject, message, send_date, send_time):
-    # Create the message
+def send_email(receiver, subject, message, date_, time_, img):
+    # set up the email
     msg = EmailMessage()
     msg['From'] = 'jjuliamaxxx@gmail.com'
-    msg['To'] = recipient
+    msg['To'] = receiver
     msg['Subject'] = subject
     msg.set_content(message)
+    # if there is an image - attach it to the message
+    if img:
+        # get response from image url
+        resp = requests.get(img)
+        # get the data
+        data = resp.content
+        # add the filename
+        filename = 'content_image.jpg'
+        # add image as an attachment to the message
+        msg.add_attachment(data, maintype='image', subtype='jpeg',
+                           filename=filename)
+    # convert date and time to datetime
+    dt = datetime.datetime.strptime(
+        date_ + ' ' + time_, '%Y-%m-%d %H:%M')
 
-    # Convert the send date and time to a datetime object
-    send_datetime = datetime.datetime.strptime(
-        send_date + ' ' + send_time, '%Y-%m-%d %H:%M')
-
-    def send_email_helper(msg, recipient, user_id, send_date):
-        # Send the email
+    def email(msg, user_id):
         with smtplib.SMTP('smtp.gmail.com', 587) as smtp:
             smtp.starttls()
+            # log in
             smtp.login('jjuliamaxxx@gmail.com', 'lguvzwzsishpgtbf')
-            # Check if the movie has already been notified
-            date_obj = datetime.datetime.strptime(send_date, '%Y-%m-%d')
-            date_formatted = date_obj.strftime('%Y-%m-%d %H:%M:%S')
-
+            # send email
             smtp.send_message(msg)
-            db.execute("UPDATE movies SET notified = TRUE WHERE id = ? AND date=?;",
-                       user_id, date_formatted)
+            # change notified to true
+            db.execute("UPDATE movies SET notified = 'TRUE' WHERE id = ? AND image=?;",
+                       user_id, img)
             print("Email sent!")
-    # Schedule the email to be sent
-    if not scheduled_jobs.get((recipient, subject, message, send_datetime)):
-        job = schedule.every().day.at(send_time).do(
-            send_email_helper, msg, recipient, session['user_id'], send_date)
-        scheduled_jobs[(recipient, subject, message, send_datetime)] = job
-        print(scheduled_jobs)
-        job.next_run = send_datetime  # Set the next run time to the send date and time
-        # Run the schedule
+    # make sure the jobs are not repeating
+    if not jobs.get((receiver, subject, message, dt, img)):
+        # schedule a job
+        job = schedule.every().day.at(time_).do(
+            email, msg, session['user_id'])
+        # add a job to the dictionary of jobs
+        jobs[(receiver, subject, message, dt, img)] = job
+        print(jobs)
+        # set the next run to datetime
+        job.next_run = dt
 
     def run_schedule():
+        # run the schedule
         while True:
             schedule.run_pending()
             time.sleep(1)
     threading.Thread(target=run_schedule, daemon=True).start()
 
 
-def cancel_email(receiver, subject, message, date, time):
+def cancel_email(receiver, subject, message, date, time, img):
     # convert date and time to datetime
     dt = datetime.datetime.strptime(
         date + ' ' + time, '%Y-%m-%d %H:%M')
 
     # get the job that matches given parameters
-    job = scheduled_jobs.get((receiver, subject, message, dt))
+    job = jobs.get((receiver, subject, message, dt, img))
     # if such job exists
     if job:
         # cancel the job and thus email
         schedule.cancel_job(job)
-        scheduled_jobs.pop((receiver, subject, message, dt))
+        jobs.pop((receiver, subject, message, dt, img))
 
 
 def search_movie(title):

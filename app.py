@@ -226,7 +226,6 @@ def movies():
             # if the movie is already out
             if date <= now:
                 flash('The movie is already out, go watch it!')
-                return render_template('movies.html')
             # if the movie hasn't come out yet
             else:
                 # get user's email
@@ -240,12 +239,11 @@ def movies():
                 # get the image
                 image = request.form.get('image')
                 # set the message
-                message = f"HEY! {title} has come out today! \n Enjoy {title}"
+                message = f"HEY! {title} has come out today!\nGo ahead and check out {title}"
                 # get the date
                 d = request.form.get('notify')
-                # send email
-                send_email(email, subject, message, d, '00:00')
-                flash('You will be notified when the movie is out!')
+
+                # check if the movies with such title is already in the database
                 names = db.execute(
                     "SELECT title FROM movies WHERE user_id=?", session['user_id'])
                 if not names:
@@ -258,9 +256,16 @@ def movies():
                             chosen = True
                             break
                     if chosen != True:
+                        # add movie to the database
                         db.execute(
                             "INSERT INTO movies (user_id, title, image, date, notified) VALUES (?, ?, ?, ?, ?)", session['user_id'], title, image, date, False)
+                # send email
+                send_email(email, subject, message,
+                           d, '12:00', image)
+                flash('You will be notified when the movie is out!')
+            return render_template('movies.html')
         return render_template('movies.html', info=info)
+    # if the request is GET
     elif request.method == 'GET' and request.args.get('movie') and request.args.get('movie') != None:
         movie = request.args.get("movie")
         info = search_movie(movie)
@@ -272,26 +277,40 @@ def movies():
 @app.route("/upcoming", methods=["GET", "POST"])
 @login_required
 def upcoming_media():
+    # get the information about the upcoming movies
     info = upcoming()
+    # if the request is GET
     if request.method == "GET":
         return render_template("upcoming.html", info=info)
+    # if the request is POST
     else:
+        # if user clicked the button notify
         if (request.form.get('notify')):
+            # get movies release date
             date = datetime.datetime.strptime(
                 request.form.get('notify'), '%Y-%m-%d')
+            # get today's date
             now = datetime.datetime.today()
+            # if the movie is already out
             if date <= now:
                 flash('the movie is already out, go watch it!')
+            # if the movie hasn't come out yet
             else:
-
+                # get user's email
                 email = db.execute(
                     'SELECT email FROM users WHERE id=?', session['user_id'])
                 email = email[0]['email']
+                # get the title
                 title = request.form.get('title')
+                # get the image
                 image = request.form.get('image')
+                # make an email subject
                 subject = f"{title} is out!!!"
-                message = f"HEY! {title} has come out today! \n Enjoy {title}"
+                # make an email message
+                message = f"HEY! {title} has come out today!\nGo ahead and check out {title}"
+                # get the notify date
                 d = request.form.get('notify')
+                # check if the movies with such title is already in the database
                 names = db.execute(
                     "SELECT title FROM movies WHERE user_id=?", session['user_id'])
                 if not names:
@@ -304,39 +323,53 @@ def upcoming_media():
                             chosen = True
                             break
                     if chosen != True:
+                        # add movie to the database
                         db.execute(
                             "INSERT INTO movies (user_id, title, image, date, notified) VALUES (?, ?, ?, ?, ?)", session['user_id'], title, image, date, False)
-                send_email(email, subject, message, '2023-04-20', '11:42')
+                # send email
+                send_email(email, subject, message,
+                           d, '12:00', image)
                 flash('You will be notified when the movie is out!')
-
         return render_template('upcoming.html', info=info)
 
 
 @app.route("/notified", methods=["GET", "POST"])
 @login_required
 def notified():
+    # if the request is GET
     if request.method == "GET":
+        # get all the information about user's chosen content
         info = db.execute(
             "SELECT title, image, date FROM movies WHERE user_id=?", session['user_id'])
         return render_template('notified.html', info=info)
+    # if the request is POST
     else:
+        # if clicked on the button cancel
         if (request.form.get('cancel')):
+            # get title
             title = request.form.get('title')
-
+            # delete from the database
             db.execute("DELETE FROM movies WHERE title=? AND user_id=?;",
                        title, session['user_id'])
-
+            # get the email
             email = db.execute(
                 'SELECT email FROM users WHERE id=?', session['user_id'])
             email = email[0]['email']
+            # get the title
             title = request.form.get('title')
+            # get the subject
             subject = f"{title} is out!!!"
+            # get the date of notification
             d = request.form.get('notify')
+            # get the image
             image = request.form.get('image')
+            # convert date to datetime
             dt = datetime.datetime.strptime(d, '%Y-%m-%d %H:%M:%S')
             dt = dt.date()
-            message = f"HEY! {title} has come out today!\n Enjoy {title}"
-            cancel_email(email, subject, message, str(dt), '00:00')
+            # get an email message
+            message = f"HEY! {title} has come out today!\nGo ahead and check out {title}"
+            # cancel email
+            cancel_email(email, subject, message, '2023-04-20', '12:58', image)
             flash('notification was canceled')
         return redirect("/notified")
 
@@ -344,27 +377,43 @@ def notified():
 @app.route("/music", methods=["GET", "POST"])
 @login_required
 def music():
+    # if request is POST
     if request.method == 'POST':
+        # get the title of the album
         album = request.args.get("album")
+        # get information about the album
         info = search_album(album)
+        # if the notification button clicked
         if (request.form.get('notify')):
+            # get the release date
             date = datetime.datetime.strptime(
                 request.form.get('notify'), '%Y-%m-%d')
+            # get today's date
             now = datetime.datetime.today()
+
+            # if the album is already out
             if date <= now:
                 flash('the album is already out, go listen to it!')
                 return render_template('music.html')
+
+            # if the album hasn't come out yet
             else:
+                # get the email
                 email = db.execute(
                     'SELECT email FROM users WHERE id=?', session['user_id'])
                 email = email[0]['email']
+                # get the title
                 title = request.form.get('title')
+                # create the email subject
                 subject = f"{title} is out!!!"
+                # get the image
                 image = request.form.get('image')
-                message = f"HEY! {title} has come out today! \n Enjoy {title}"
+                # create the email message
+                message = f"HEY! {title} has come out today!\nGo ahead and check out {title}"
+                # get the release date
                 d = request.form.get('notify')
-                send_email(email, subject, message, d, '00:00')
-                flash('You will be notified when the album is out!')
+
+                # make sure that the album is not already in the database
                 names = db.execute(
                     "SELECT title FROM movies WHERE user_id=?", session['user_id'])
                 if not names:
@@ -377,9 +426,17 @@ def music():
                             chosen = True
                             break
                     if chosen != True:
+                        # add album to the database
                         db.execute(
                             "INSERT INTO movies (user_id, title, image, date, notified) VALUES (?, ?, ?, ?, ?)", session['user_id'], title, image, date, False)
+                # send the email
+                send_email(email, subject, message,
+                           str(d), '12:00', image)
+                flash('You will be notified when the album is out!')
+            return render_template('music.html')
         return render_template('music.html', info=info)
+
+    # if the request is GET
     elif request.method == 'GET' and request.args.get('album'):
         album = request.args.get("album")
         info = search_album(album)
