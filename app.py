@@ -240,7 +240,7 @@ def movies():
                 # get the image
                 image = request.form.get('image')
                 # set the message
-                message = f"HEY! {title} has come out today! {image} \n Enjoy {title}"
+                message = f"HEY! {title} has come out today! \n Enjoy {title}"
                 # get the date
                 d = request.form.get('notify')
                 # send email
@@ -283,6 +283,7 @@ def upcoming_media():
             if date <= now:
                 flash('the movie is already out, go watch it!')
             else:
+
                 email = db.execute(
                     'SELECT email FROM users WHERE id=?', session['user_id'])
                 email = email[0]['email']
@@ -291,8 +292,6 @@ def upcoming_media():
                 subject = f"{title} is out!!!"
                 message = f"HEY! {title} has come out today! \n Enjoy {title}"
                 d = request.form.get('notify')
-                send_email(email, subject, message, d, '14:00')
-                flash('You will be notified when the movie is out!')
                 names = db.execute(
                     "SELECT title FROM movies WHERE user_id=?", session['user_id'])
                 if not names:
@@ -307,6 +306,8 @@ def upcoming_media():
                     if chosen != True:
                         db.execute(
                             "INSERT INTO movies (user_id, title, image, date, notified) VALUES (?, ?, ?, ?, ?)", session['user_id'], title, image, date, False)
+                send_email(email, subject, message, '2023-04-20', '11:42')
+                flash('You will be notified when the movie is out!')
 
         return render_template('upcoming.html', info=info)
 
@@ -334,7 +335,7 @@ def notified():
             image = request.form.get('image')
             dt = datetime.datetime.strptime(d, '%Y-%m-%d %H:%M:%S')
             dt = dt.date()
-            message = f"HEY! {title} has come out today! {image} \n Enjoy {title}"
+            message = f"HEY! {title} has come out today!\n Enjoy {title}"
             cancel_email(email, subject, message, str(dt), '00:00')
             flash('notification was canceled')
         return redirect("/notified")
@@ -360,7 +361,7 @@ def music():
                 title = request.form.get('title')
                 subject = f"{title} is out!!!"
                 image = request.form.get('image')
-                message = f"HEY! {title} has come out today! {image} \n Enjoy {title}"
+                message = f"HEY! {title} has come out today! \n Enjoy {title}"
                 d = request.form.get('notify')
                 send_email(email, subject, message, d, '00:00')
                 flash('You will be notified when the album is out!')

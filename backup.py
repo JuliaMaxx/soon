@@ -13,50 +13,44 @@ from email.message import EmailMessage
 import smtplib
 db = SQL("sqlite:///movies.db")
 
-scheduled_jobs = {}
+jobs = {}
 
 helpers = Flask(__name__)
 
 
-def send_email(recipient, subject, message, send_date, send_time):
-    # Create the message
-    msg = EmailMessage()
-    msg['From'] = 'jjuliamaxxx@gmail.com'
-    msg['To'] = recipient
-    msg['Subject'] = subject
-    msg.set_content(message)
+def send_email(receiver, subject, message, date, time_):
+    with helpers.app_context():
+        msg = EmailMessage()
+        msg['From'] = 'jjuliamaxxx@gmail.com'
+        msg['To'] = receiver
+        msg['Subject'] = subject
+        msg.set_content(message)
 
-    # Convert the send date and time to a datetime object
-    send_datetime = datetime.datetime.strptime(
-        send_date + ' ' + send_time, '%Y-%m-%d %H:%M')
+        # convert time and date to datetime
+        dt = datetime.datetime.strptime(
+            date + ' ' + time_, '%Y-%m-%d %H:%M')
 
-    def send_email_helper(msg, recipient, user_id, send_date):
-        # Send the email
-        with smtplib.SMTP('smtp.gmail.com', 587) as smtp:
-            smtp.starttls()
-            smtp.login('jjuliamaxxx@gmail.com', 'lguvzwzsishpgtbf')
-            # Check if the movie has already been notified
-            date_obj = datetime.datetime.strptime(send_date, '%Y-%m-%d')
-            date_formatted = date_obj.strftime('%Y-%m-%d %H:%M:%S')
+        def email(msg, receiver):
+            # setup everything to send the email
+            with smtplib.SMTP('smtp.gmail.com', 587) as smtp:
+                smtp.starttls()
+                smtp.login('jjuliamaxxx@gmail.com', 'lguvzwzsishpgtbf')
+                smtp.send_message(msg)
+                db.execute("UPDATE movies SET notified = 'TRUE' WHERE id = ? AND date=?",
+                           session['users_id'], date)
+        # schedule the email
+        job = schedule.every().day.at(time_).do(email, msg, receiver)
+        # update jobs dictionary
+        jobs[(receiver, subject, message, dt)] = job
+        print(jobs)
+        # set the next run time
+        job.next_run = dt
 
-            smtp.send_message(msg)
-            db.execute("UPDATE movies SET notified = TRUE WHERE id = ? AND date=?;",
-                       user_id, date_formatted)
-            print("Email sent!")
-    # Schedule the email to be sent
-    if not scheduled_jobs.get((recipient, subject, message, send_datetime)):
-        job = schedule.every().day.at(send_time).do(
-            send_email_helper, msg, recipient, session['user_id'], send_date)
-        scheduled_jobs[(recipient, subject, message, send_datetime)] = job
-        print(scheduled_jobs)
-        job.next_run = send_datetime  # Set the next run time to the send date and time
-        # Run the schedule
-
-    def run_schedule():
-        while True:
-            schedule.run_pending()
-            time.sleep(1)
-    threading.Thread(target=run_schedule, daemon=True).start()
+        def run_schedule():
+            while True:
+                schedule.run_pending()
+                time.sleep(1)
+        threading.Thread(target=run_schedule, daemon=True).start()
 
 
 def cancel_email(receiver, subject, message, date, time):
@@ -65,12 +59,12 @@ def cancel_email(receiver, subject, message, date, time):
         date + ' ' + time, '%Y-%m-%d %H:%M')
 
     # get the job that matches given parameters
-    job = scheduled_jobs.get((receiver, subject, message, dt))
+    job = jobs.get((receiver, subject, message, dt))
     # if such job exists
     if job:
         # cancel the job and thus email
         schedule.cancel_job(job)
-        scheduled_jobs.pop((receiver, subject, message, dt))
+        jobs.pop((receiver, subject, message, dt))
 
 
 def search_movie(title):
