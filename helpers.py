@@ -12,35 +12,35 @@ from email.message import EmailMessage
 import smtplib
 db = SQL("sqlite:///movies.db")
 
-scheduled_jobs = {}
+jobs = {}
 
 
-def send_email(recipient, subject, message, send_date, send_time):
-    # Create the message
+def send_email(receiver, subject, message, date, time_):
     msg = EmailMessage()
     msg['From'] = 'jjuliamaxxx@gmail.com'
-    msg['To'] = recipient
+    msg['To'] = receiver
     msg['Subject'] = subject
     msg.set_content(message)
 
-    # Convert the send date and time to a datetime object
-    send_datetime = datetime.datetime.strptime(
-        send_date + ' ' + send_time, '%Y-%m-%d %H:%M')
+    # convert time and date to datetime
+    dt = datetime.datetime.strptime(
+        date + ' ' + time_, '%Y-%m-%d %H:%M')
 
-    def send_email_helper(msg, recipient):
-        # Send the email
+    def email(msg, receiver):
+        # setup everything to send the email
         with smtplib.SMTP('smtp.gmail.com', 587) as smtp:
             smtp.starttls()
             smtp.login('jjuliamaxxx@gmail.com', 'lguvzwzsishpgtbf')
             smtp.send_message(msg)
             db.execute("UPDATE movies SET notified = 'TRUE' WHERE id = ? AND date=?",
-                       session['users_id'], send_date)
-            print("Email sent!")
-    # Schedule the email to be sent
-    job = schedule.every().day.at(send_time).do(send_email_helper, msg, recipient)
-    scheduled_jobs[(recipient, subject, message, send_datetime)] = job
-    job.next_run = send_datetime  # Set the next run time to the send date and time
-    # Run the schedule
+                       session['users_id'], date)
+    # schedule the email
+    job = schedule.every().day.at(time_).do(email, msg, receiver)
+    # update jobs dictionary
+    jobs[(receiver, subject, message, dt)] = job
+    print(jobs)
+    # set the next run time
+    job.next_run = dt
 
     def run_schedule():
         while True:
@@ -49,156 +49,204 @@ def send_email(recipient, subject, message, send_date, send_time):
     threading.Thread(target=run_schedule, daemon=True).start()
 
 
-def cancel_email(recipient, subject, message, send_date, send_time):
-    send_datetime = datetime.datetime.strptime(
-        send_date + ' ' + send_time, '%Y-%m-%d %H:%M')
-    job = scheduled_jobs.get((recipient, subject, message, send_datetime))
+def cancel_email(receiver, subject, message, date, time):
+    # convert date and time to datetime
+    dt = datetime.datetime.strptime(
+        date + ' ' + time, '%Y-%m-%d %H:%M')
 
+    # get the job that matches given parameters
+    job = jobs.get((receiver, subject, message, dt))
+    # if such job exists
     if job:
-        # Cancel the job and remove it from the dictionary
+        # cancel the job and thus email
         schedule.cancel_job(job)
-        scheduled_jobs.pop((recipient, subject, message, send_datetime))
+        jobs.pop((receiver, subject, message, dt))
 
 
 def search_movie(title):
+    # get data using tmdb api
     url = f"https://api.themoviedb.org/3/search/multi?api_key=8e5c4304a2b0fc02884f12935ccffac9&query={title}"
-    response = requests.get(url)
-    response_json = response.json()
-    results = response_json["results"]
+    # get response from the url and convert it to json
+    resp = requests.get(url)
+    resp = resp.json()
+    results = resp["results"]
+    # initialize a list of movies
     movies = []
     for result in results:
-        # Check if the result is a movie or TV show
+        # check if the result is a movie or tv show
         if result["media_type"] in ["movie", "tv"]:
-            movie_info = {}
-            movie_info["title"] = result["title"] if result["media_type"] == "movie" else result["name"]
-            movie_info["date"] = result["release_date"] if result["media_type"] == "movie" else result["first_air_date"]
-            movie_info["image"] = f"https://image.tmdb.org/t/p/w500{result['poster_path']}"
-            movies.append(movie_info)
+            info = {}
+            # get the title of a movie
+            if result["media_type"] == "movie":
+                info["title"] = result["title"]
+            # get the title of a tv show
+            else:
+                info["title"] = result["name"]
+
+            # get the release date of a movie
+            if result["media_type"] == "movie":
+                info["date"] = result["release_date"]
+            # get the release date of a tv show
+            else:
+                info["date"] = result["first_air_date"]
+            # get the image of a movie or a tv show
+            info["image"] = f"https://image.tmdb.org/t/p/w500{result['poster_path']}"
+            # add information about current movie to the list of movies
+            movies.append(info)
     return movies
 
 
-def upcoming_music():
-    return
-
-
 def search_album(title):
-
+    # get data from deezer api
     url = "https://api.deezer.com/search/album"
+    # search based on the title provided
     params = {"q": f"{title}"}
-
-    # Make the API request to search for the album
-    response = requests.get(url, params=params)
+    # get response from the api
+    resp = requests.get(url, params=params)
+    # initialize a list of album ids
     ids = []
-    # Check if the search request was successful
-    if response.status_code == 200:
-        # Get the album ID from the search response
-        response = response.json()
-        if "data" in response and len(response["data"]) > 0:
-            for d in response['data']:
-                album_id = d["id"]
-                ids.append(album_id)
+    # check if the response was ok
+    if resp.status_code == 200:
+        # convert data to json
+        resp = resp.json()
+        # check if there is a data key in the response dictionary
+        if "data" in resp and len(resp["data"]) > 0:
+            # iterate through the data
+            for d in resp['data']:
+                # get the id of each album
+                id = d["id"]
+                # add id to the ids list
+                ids.append(id)
         else:
-            print("Error: Album not found.")
+            # exit if there was an error
             exit()
     else:
-        print("Error:", response.status_code)
+        # if there was an error - print the status code and exit
+        print(f"Error:{resp.status_code}")
         exit()
 
     info = []
-    # Set up the API endpoint to get detailed information about the album
+    # iterate through the ids list
     for id in ids:
+        # get the data from deezer api
         url1 = f"https://api.deezer.com/album/{id}"
+        # get the response from the api
+        resp1 = requests.get(url1)
 
-        # Make the API request to get detailed information about the album
-        response1 = requests.get(url1)
+        # check if the response was ok
+        if resp1.status_code == 200:
+            # convert response to json
+            resp1 = resp1.json()
+            inf = {}
+            # get the title and the artist name of the album
+            inf["title"] = resp1["title"] + \
+                " " + '-'+' ' + resp1["artist"]["name"]
+            # get the release date of the album
+            inf["date"] = resp1["release_date"]
 
-        # Check if the album request was successful
-        if response1.status_code == 200:
-            # Get the album information from the album response
-            response1 = response1.json()
-            album_info = {}
-            album_info["title"] = response1["title"] + \
-                " " + '-'+' ' + response1["artist"]["name"]
-            album_info["date"] = response1["release_date"]
-            if response1['cover_xl'] == '' or response1['cover_xl'] == None:
-                img = get_image(response1['title'])
-                album_info['image'] = img
+            # if there is no image - get image from another api
+            if resp1['cover_xl'] == '' or resp1['cover_xl'] == None:
+                img = get_image(resp1['title'])
+                inf['image'] = img
+            # if there is an image - get the image
             else:
-                album_info["image"] = response1["cover_xl"]
-            info.append(album_info)
-            # Print out the album information
+                inf["image"] = resp1["cover_xl"]
+            # add information about current album to the list of all the albums
+            info.append(inf)
         else:
-            print("Error:", response1.status_code)
+            # if there was an error - print the status code
+            print(f"Error:{resp1.status_code}")
     return info
+
+# helper function to get the image from last fm api if the deezer api provides none
 
 
 def get_image(title):
+    # get the data from the url
     url = "http://ws.audioscrobbler.com/2.0/?method=album.search&api_key=5d6840079ddfebe3815942e2f55a8599&format=json"
+    # search for a given album title
     params = {"album": f"{title}"}
-    response = requests.get(url, params=params)
-    image = response.json()[
+    # get the response from the api
+    resp = requests.get(url, params=params)
+    # convert response to json and get the image
+    image = resp.json()[
         'results']['albummatches']['album'][0]['image'][-1]['#text']
     return image
 
 
 def upcoming():
-    api_key = "8e5c4304a2b0fc02884f12935ccffac9"
-    movie_url = f"https://api.themoviedb.org/3/movie/upcoming?api_key={api_key}&language=en-US&page="
-    tv_url = f"https://api.themoviedb.org/3/tv/on_the_air?api_key={api_key}&language=en-US&page="
+    key = "8e5c4304a2b0fc02884f12935ccffac9"
+    # get the data from tmdb api
+    m_url = f"https://api.themoviedb.org/3/movie/upcoming?api_key={key}&language=en-US&page="
+    t_url = f"https://api.themoviedb.org/3/tv/on_the_air?api_key={key}&language=en-US&page="
 
     upcoming = []
-    counter = 0  # Counter to limit the number of results to 30
+    counter = 0
 
-    # Loop through all pages of movie results
+    # get movie information
+    # initialy - get the information from the page 1 - then increase the page count
     page = 1
     while True:
-        movie = requests.get(movie_url + str(page))
-        movie_json = movie.json()
-        movie_results = movie_json["results"]
+        # get the response from the api
+        movie = requests.get(m_url + str(page))
+        # convert response to json
+        movie = movie.json()
+        m_results = movie["results"]
 
-        # If there are no more results, stop looping
-        if not movie_results:
+        # break if there are no more results
+        if not m_results:
             break
 
-        for result in movie_results:
-            media_info = {}
-            media_info["title"] = result["title"]
-            media_info["date"] = result["release_date"]
-            media_info["image"] = f"https://image.tmdb.org/t/p/w500{result['poster_path']}"
-            media_info["media_type"] = "movie"
-            # Only include media that will be released in the future
-            if media_info["date"] >= datetime.datetime.today().strftime('%Y-%m-%d'):
-                upcoming.append(media_info)
+        for result in m_results:
+            info = {}
+            # get the title
+            info["title"] = result["title"]
+            # get the release date
+            info["date"] = result["release_date"]
+            # get the image
+            info["image"] = f"https://image.tmdb.org/t/p/w500{result['poster_path']}"
+            # get only the movies that haven't come out yet
+            if info["date"] >= datetime.datetime.today().strftime('%Y-%m-%d'):
+                # add information to the list of upcoming movies and tv shows
+                upcoming.append(info)
                 counter += 1
-                if counter == 30:
+                # limit the numer of results to 40
+                if counter == 40:
                     return upcoming
-
+        # increase the page count
         page += 1
 
-    # Loop through all pages of TV results
+    # get tv show information
+    # initialy - get the information from the page 1 - then increase the page count
     page = 1
     while True:
-        tv = requests.get(tv_url + str(page))
-        tv_json = tv.json()
-        tv_results = tv_json["results"]
+        # get the resoponse from the api
+        tv = requests.get(t_url + str(page))
+        # convert the response to json
+        tv = tv.json()
+        t_results = tv["results"]
 
-        # If there are no more results, stop looping
-        if not tv_results:
+        # break if there are no more results
+        if not t_results:
             break
 
-        for result in tv_results:
-            media_info = {}
-            media_info["title"] = result["name"]
-            media_info["date"] = result["first_air_date"]
-            media_info["image"] = f"https://image.tmdb.org/t/p/w500{result['poster_path']}"
-            media_info["media_type"] = "tv"
-            # Only include media that will be released in the future
-            if media_info["date"] >= datetime.datetime.today().strftime('%Y-%m-%d'):
-                upcoming.append(media_info)
+        for result in t_results:
+            info = {}
+            # get the title
+            info["title"] = result["name"]
+            # get the release date
+            info["date"] = result["first_air_date"]
+            # get the image
+            info["image"] = f"https://image.tmdb.org/t/p/w500{result['poster_path']}"
+            # get only the tv shows that haven't come out yet
+            if info["date"] >= datetime.datetime.today().strftime('%Y-%m-%d'):
+                # add information to the list of upcoming movies and tv shows
+                upcoming.append(info)
                 counter += 1
-                if counter == 30:
+                # limit the numer of results to 40
+                if counter == 40:
                     return upcoming
-
+        # increase the page count
         page += 1
 
     return upcoming
