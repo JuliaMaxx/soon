@@ -5,8 +5,6 @@ from flask_session import Session
 from werkzeug.security import check_password_hash, generate_password_hash
 from helpers import login_required, search_movie, send_email, upcoming, cancel_email, search_album, check_email
 import datetime
-from email.mime.image import MIMEImage
-
 
 app = Flask(__name__)
 

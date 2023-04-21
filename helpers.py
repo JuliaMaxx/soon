@@ -1,27 +1,30 @@
 import re
-from flask import Flask
 import os
 from cs50 import SQL
 import requests
 from flask import redirect, session
 from functools import wraps
-import json
 import threading
 import datetime
 import schedule
 import time
 from email.message import EmailMessage
 import smtplib
-from email.mime.multipart import MIMEMultipart
-from email.mime.image import MIMEImage
-import imghdr
+from dotenv import load_dotenv
+
+# connect the database
 db = SQL("sqlite:///movies.db")
 
 # define a dictionary with scheduled jobs
 jobs = {}
 
 
+def configure():
+    load_dotenv()
+
+
 def send_email(receiver, subject, message, date_, time_, img):
+    configure()
     # set up the email
     msg = EmailMessage()
     msg['From'] = 'jjuliamaxxx@gmail.com'
@@ -47,7 +50,7 @@ def send_email(receiver, subject, message, date_, time_, img):
         with smtplib.SMTP('smtp.gmail.com', 587) as smtp:
             smtp.starttls()
             # log in
-            smtp.login('jjuliamaxxx@gmail.com', 'lguvzwzsishpgtbf')
+            smtp.login('jjuliamaxxx@gmail.com', os.getenv('password'))
             # send email
             smtp.send_message(msg)
             # change notified to true
