@@ -3,7 +3,7 @@ from cs50 import SQL
 from flask import Flask, flash, redirect, render_template, request, session
 from flask_session import Session
 from werkzeug.security import check_password_hash, generate_password_hash
-from helpers import login_required, search_movie, send_email, upcoming, cancel_email, search_album, check_email
+from project.helpers import login_required, search_movie, send_email, upcoming, cancel_email, search_album, check_email
 import datetime
 
 app = Flask(__name__)
@@ -13,6 +13,9 @@ app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
 
+# connect the database
+db = SQL("sqlite:///movies.db")
+
 
 @app.after_request
 def after_request(response):
@@ -21,10 +24,6 @@ def after_request(response):
     response.headers["Expires"] = 0
     response.headers["Pragma"] = "no-cache"
     return response
-
-
-# include sqlite database
-db = SQL("sqlite:///movies.db")
 
 
 @app.route("/", methods=["GET"])
@@ -370,7 +369,7 @@ def notified():
             # get an email message
             message = f"HEY! {title} has come out today!\nGo ahead and check out {title}"
             # cancel email
-            cancel_email(email, subject, message, '2023-04-20', '12:58', image)
+            cancel_email(email, subject, message, str(dt), '12:00', image)
             flash('notification was canceled')
         return redirect("/notified")
 
@@ -443,3 +442,7 @@ def music():
         info = search_album(album)
         return render_template('music.html', info=info)
     return render_template("music.html")
+
+
+if __name__ == "__main__":
+    app.run()

@@ -10,7 +10,7 @@ import schedule
 import time
 from email.message import EmailMessage
 import smtplib
-from dotenv import load_dotenv
+
 
 # connect the database
 db = SQL("sqlite:///movies.db")
@@ -18,13 +18,7 @@ db = SQL("sqlite:///movies.db")
 # define a dictionary with scheduled jobs
 jobs = {}
 
-
-def configure():
-    load_dotenv()
-
-
 def send_email(receiver, subject, message, date_, time_, img):
-    configure()
     # set up the email
     msg = EmailMessage()
     msg['From'] = 'jjuliamaxxx@gmail.com'
