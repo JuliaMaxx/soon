@@ -1,6 +1,6 @@
 # SOON
 #### Video Demo:  <https://www.youtube.com/watch?v=elIDwOWeOyo>
-![Studio_Project](https://github.com/JuliaMaxy/soon/assets/121096183/ab51f3b9-e2af-43a7-9f5e-0f472214aa8f)
+![Studio_Project](https://github.com/JuliaMaxy/soon/assets/121096183/e0bffe3b-4262-4492-bee1-e9531b777060)
 #### Description:
 A flask website that is meant to notify users about a release of movies, tv shows and/or albums
 ### Languages
@@ -80,7 +80,8 @@ A flask website that is meant to notify users about a release of movies, tv show
 ### Acknowledging issues
 <ul>
 <li>To work properly, this website requires python code to run continuously. Since currently the website is in the process of being deployed, unless my local computer is running 24/7, it won't function as expected. The problem, however, should be resolved once the website is deployed</li>
-<li>To create autocomplete bar for <code>music.html</code> I used Discogs API to fetch data, but since I am using the free version, sometimes it will run out of available requests.The issue, however, is not that significant, since even in the worst case scenario it just stops showing the autocomplete results</li>
+<li>To create autocomplete bar for <code>music.html</code> I used Discogs API to fetch data, but since I am using the free version, sometimes it will run out of available requests.The issue, however, is not that significant, since even in the worst case scenario it just stops showing the autocomplete !
+results</li>
 <li>It would have been really nice to have created a page that would display all the upcoming albums (the way I did that with movies and tv shows), but unfortunately i couldn't find any music APIs that might provide me with such data</li>
 </ul>
 
